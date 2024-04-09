@@ -75,6 +75,11 @@ public class PasswordCheckerDto {
     public int minLength;
 
     /**
+     * Maximum allowed length for the password.
+     */
+    public int maxLength;
+
+    /**
      * Flag to check if the password exists in a Redis key, implying it's not allowed.
      */
     public boolean redisChecker;
@@ -178,7 +183,7 @@ public class PasswordCheckerDto {
         this.failedReason = failedReason;
     }
 
-    public boolean isLengthChecker() {
+    public boolean getLengthChecker() {
         return lengthChecker;
     }
 
@@ -194,7 +199,7 @@ public class PasswordCheckerDto {
         this.minLength = minLength;
     }
 
-    public boolean isRedisChecker() {
+    public boolean getRedisChecker() {
         return redisChecker;
     }
 
@@ -206,7 +211,11 @@ public class PasswordCheckerDto {
         return continueLength;
     }
 
-    public boolean isContinueNumberChecker() {
+    public void setContinueLength(int continueLength) {
+        this.continueLength = continueLength;
+    }
+
+    public boolean getContinueNumberChecker() {
         return continueNumberChecker;
     }
 
@@ -214,7 +223,7 @@ public class PasswordCheckerDto {
         this.continueNumberChecker = continueNumberChecker;
     }
 
-    public boolean isContinueAlphabetChecker() {
+    public boolean getContinueAlphabetChecker() {
         return continueAlphabetChecker;
     }
 
@@ -222,7 +231,7 @@ public class PasswordCheckerDto {
         this.continueAlphabetChecker = continueAlphabetChecker;
     }
 
-    public boolean isContinueSymbolChecker() {
+    public boolean getContinueSymbolChecker() {
         return continueSymbolChecker;
     }
 
@@ -230,7 +239,7 @@ public class PasswordCheckerDto {
         this.continueSymbolChecker = continueSymbolChecker;
     }
 
-    public boolean isSameNumberChecker() {
+    public boolean getSameNumberChecker() {
         return sameNumberChecker;
     }
 
@@ -238,7 +247,7 @@ public class PasswordCheckerDto {
         this.sameNumberChecker = sameNumberChecker;
     }
 
-    public boolean isSameAlphabetChecker() {
+    public boolean getSameAlphabetChecker() {
         return sameAlphabetChecker;
     }
 
@@ -246,7 +255,7 @@ public class PasswordCheckerDto {
         this.sameAlphabetChecker = sameAlphabetChecker;
     }
 
-    public boolean isSameSymbolChecker() {
+    public boolean getSameSymbolChecker() {
         return sameSymbolChecker;
     }
 
@@ -254,7 +263,7 @@ public class PasswordCheckerDto {
         this.sameSymbolChecker = sameSymbolChecker;
     }
 
-    public boolean isLinearAlphabetChecker() {
+    public boolean getLinearAlphabetChecker() {
         return linearAlphabetChecker;
     }
 
@@ -262,7 +271,7 @@ public class PasswordCheckerDto {
         this.linearAlphabetChecker = linearAlphabetChecker;
     }
 
-    public boolean isReverseChecker() {
+    public boolean getReverseChecker() {
         return reverseChecker;
     }
 
@@ -294,6 +303,14 @@ public class PasswordCheckerDto {
         this.ranking = ranking;
     }
 
+    public int getMaxLength() {
+        return maxLength;
+    }
+
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+    }
+
     /**
      * Constructs a PasswordCheckerDto with a specified type, initializing validation criteria based on type.
      * @param type The type of password policy to apply. Currently, this parameter is not utilized in the constructor.
@@ -301,6 +318,7 @@ public class PasswordCheckerDto {
     public PasswordCheckerDto(int type) {
         this.lengthChecker = lengthChecker;
         this.minLength = minLength;
+        this.maxLength = maxLength;
         this.redisChecker = redisChecker;
         this.continueLength = continueLength;
         this.continueNumberChecker = continueNumberChecker;

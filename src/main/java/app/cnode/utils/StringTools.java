@@ -12,7 +12,7 @@ public class StringTools {
      * @param obj The object to check.
      * @return {@code true} if the object is considered null based on the criteria above, {@code false} otherwise.
      */
-    public static boolean isNull(Object obj) {
+    public static boolean usable(Object obj) {
         // Check for strict null
         if (obj == null) {
             return true;
