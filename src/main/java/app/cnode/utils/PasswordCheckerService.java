@@ -113,48 +113,78 @@ public class PasswordCheckerService {
         String password;
         int limit;
         boolean isReverse;
+
         if (args.length < 2) {
-            throw new IllegalArgumentException("At least two arguments are required: Password and limit. The third argumrnt isReverse is Optional.");
-        }
-        else if (args.length == 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and limit. The third argument isReverse is optional.");
+        } else if (args.length == 2) {
             password = args[0];
             limit = Integer.parseInt(args[1]);
-            isReverse = true;
-        }
-        else if (args.length > 2) {
+            isReverse = false; // Assuming default should be false for simplicity
+        } else {
             password = args[0];
             limit = Integer.parseInt(args[1]);
             isReverse = Boolean.parseBoolean(args[2]);
-        } else {
-            throw new IllegalArgumentException("Internal error occurred. Please try again.");
         }
 
-        // Check for continuous numbers within the limit
+        // Check for consecutive numbers within the limit
         int count = 1;
         for (int i = 0; i < password.length() - 1; i++) {
-            if (password.charAt(i) + 1 == password.charAt(i + 1)) {
-                count++;
-                if (count > limit) {
-                    return false;
-                }
-            } else {
-                count = 1; // Reset count if current and next characters are not consecutive
-            }
-        }
-        if (isReverse) {
-            count = 1;
-            for (int i = 0; i < password.length() - 1; i++) {
-                if (password.charAt(i) - 1 == password.charAt(i + 1)) {
+            if (Character.isDigit(password.charAt(i)) && Character.isDigit(password.charAt(i + 1))) {
+                int diff = password.charAt(i + 1) - password.charAt(i);
+                if (diff == 1 || (isReverse && diff == -1)) {
                     count++;
                     if (count > limit) {
                         return false;
                     }
                 } else {
-                    count = 1; // Reset count if current and next characters are not consecutive
+                    count = 1; // Reset count if not consecutive
                 }
+            } else {
+                count = 1; // Reset count if either character is not a digit
             }
         }
+
         return true; // Return true if the password does not exceed the limit of consecutive numbers
+    }
+
+    public boolean checkConsecutiveAlphabet(String[] args) {
+        String password;
+        int limit;
+        boolean isReverse;
+
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and limit.");
+        } else if (args.length == 2) {
+            password = args[0].toLowerCase(); // Convert password to lowercase to ignore case
+            limit = Integer.parseInt(args[1]);
+            isReverse = false; // Assuming default should be false for simplicity
+        } else if (args.length == 3) {
+            password = args[0].toLowerCase(); // Convert password to lowercase to ignore case
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+        } else {
+            throw new IllegalArgumentException("Too many arguments provided.");
+        }
+
+        // Check for continuous alphabet characters within the limit, considering reverse if specified
+        int count = 1;
+        for (int i = 0; i < password.length() - 1; i++) {
+            char currentChar = password.charAt(i);
+            char nextChar = password.charAt(i + 1);
+            int charDiff = nextChar - currentChar;
+
+            // Check if both characters are alphabetic and either consecutive or reverse consecutive
+            if (Character.isLetter(currentChar) && Character.isLetter(nextChar) &&
+                    (charDiff == 1 || (isReverse && charDiff == -1))) {
+                count++;
+                if (count > limit) {
+                    return false;
+                }
+            } else {
+                count = 1; // Reset count if current and next characters are not consecutive alphabetically
+            }
+        }
+        return true; // Return true if the password does not exceed the limit of consecutive alphabet characters
     }
 
     /**
