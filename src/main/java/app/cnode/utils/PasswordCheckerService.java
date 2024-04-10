@@ -4,6 +4,8 @@ import app.cnode.utils.constant.PwdFailReasonConst;
 import app.cnode.utils.constant.PwdMsgConst;
 import app.cnode.utils.dto.PasswordCheckerDto;
 
+import java.util.List;
+
 public class PasswordCheckerService {
 
     /**
@@ -581,6 +583,26 @@ public class PasswordCheckerService {
                 if (forwardSequenceLength >= limit || reverseSequenceLength >= limit) {
                     return false;
                 }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the given password contains any substring from a specified list of strings to avoid.
+     * <p>
+     * This method iterates through a list of strings, checking if the password contains any of these strings as substrings, irrespective of case. If the password contains any of the specified substrings, the method returns {@code false}, indicating the password is not valid according to the criteria. Otherwise, it returns {@code true}, indicating the password does not contain any of the strings to avoid and is considered valid.
+     * </p>
+     *
+     * @param password The password to check for avoidance of specific strings.
+     * @param avoidStringList A {@code List<String>} containing strings that should not appear in the password.
+     * @return {@code true} if the password does not contain any of the specified strings to avoid; {@code false} otherwise.
+     */
+    public boolean checkAvoidString(String password, List<String> avoidStringList) {
+        for (String avoidString : avoidStringList) {
+            if (password.toLowerCase().contains(avoidString.toLowerCase())) {
+                return false;
             }
         }
 
