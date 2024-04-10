@@ -480,6 +480,113 @@ public class PasswordCheckerService {
         return true;
     }
 
+    /**
+     * Checks if a password contains sequences of symbols based on the "QWERTY" keyboard layout longer than a specified limit, with an option to check in reverse order.
+     * <p>
+     * This method inspects the provided password for sequences of non-alphanumeric characters (symbols) that follow the order of symbols on a QWERTY keyboard layout. It considers both forward and, if specified through an argument, reverse sequences against a defined limit. If any sequence of symbols exceeds this limit, the method returns {@code false}.
+     * </p>
+     * <p>
+     * Expected arguments are:
+     * <ul>
+     * <li>The password to check, with all letters converted to lowercase for consistency.</li>
+     * <li>A string representation of the limit for consecutive symbols in a sequence.</li>
+     * <li>An optional boolean indicating whether to check for reverse sequences (defaults to {@code false} if not provided).</li>
+     * <li>An optional argument for the keyboard layout, which is currently only implemented for "QWERTY".</li>
+     * </ul>
+     * The method currently supports only the "QWERTY" layout for symbol sequence checks.
+     * </p>
+     *
+     * @param args An array of {@code String} objects containing the password, the consecutive symbol limit, an optional boolean for reverse sequence checks, and an optional keyboard layout (not implemented beyond "QWERTY").
+     * @return {@code true} if the password does not contain symbol sequences exceeding the specified limit based on the "QWERTY" layout and direction(s), {@code false} otherwise.
+     * @throws IllegalArgumentException If the number of arguments is incorrect, if the limit is not a valid integer, or if an unsupported keyboard layout is specified.
+     */
+    public boolean checkContinueSymbol(String[] args) {
+        String password;
+        int limit;
+        boolean isReverse;
+        String layout;
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and Limit.");
+        } else if (args.length == 2) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = false;
+            layout = "QWERTY";
+        } else if (args.length == 3) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+            layout = "QWERTY";
+        } else if (args.length == 4) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+            layout = "QWERTY";
+//            layout = args[3].toUpperCase();
+        } else {
+            throw new IllegalArgumentException("Too many arguments provided.");
+        }
+
+        // Define keyboard rows for various layouts
+        String[][] layouts = {
+                {"~!@#$%^&*()_+"}   // QWERTY layout
+        };
+
+        String[] keyboardRows;
+        switch (layout) {
+            case "QWERTY":
+                keyboardRows = layouts[0];
+                break;
+            case "AZERTY":
+                keyboardRows = layouts[1];
+                break;
+            case "QWERTZ":
+                keyboardRows = layouts[2];
+                break;
+            case "DVORAK":
+                keyboardRows = layouts[3];
+                break;
+            case "COLEMAK":
+                keyboardRows = layouts[4];
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported keyboard layout: " + layout);
+        }
+
+        // Check for sequences in the specified layout's rows
+        for (String row : keyboardRows) {
+            int forwardSequenceLength = 0;
+            int reverseSequenceLength = 0;
+            for (int i = 0; i < password.length() - 1; i++) {
+                int currentIndex = row.indexOf(password.charAt(i));
+                int nextIndex = row.indexOf(password.charAt(i + 1));
+
+                // Check for forward sequence
+                if (currentIndex != -1 && nextIndex == currentIndex + 1) {
+                    forwardSequenceLength++;
+                } else {
+                    forwardSequenceLength = 0; // Reset if no forward sequence
+                }
+
+                if (isReverse) {
+                    // Check for reverse sequence
+                    if (currentIndex != -1 && nextIndex == currentIndex - 1) {
+                        reverseSequenceLength++;
+                    } else {
+                        reverseSequenceLength = 0; // Reset if no reverse sequence
+                    }
+                }
+
+                // Check if any sequence exceeds the limit
+                if (forwardSequenceLength >= limit || reverseSequenceLength >= limit) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 
 
 
