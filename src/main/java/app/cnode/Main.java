@@ -73,6 +73,7 @@ public class Main {
 
     public Object dynamicMethodInvocation(String methodName, String[] args) {
         try {
+            methodName = methodName.replaceAll("\\s", "");
             // Assuming all methods take a single String argument for simplicity
             Method method = PasswordCheckerService.class.getMethod(methodName, String[].class);
             Method[] methods = PasswordCheckerService.class.getMethods();
