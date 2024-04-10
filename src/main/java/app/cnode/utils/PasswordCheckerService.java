@@ -64,13 +64,11 @@ public class PasswordCheckerService {
         int max;
         if (args.length < 2) {
             throw new IllegalArgumentException("At least two arguments are required.");
-        }
-        else if (args.length == 2) {
+        } else if (args.length == 2) {
             password = args[0];
             min = Integer.parseInt(args[1]);
             max = 65535;
-        }
-        else if (args.length > 2) {
+        } else if (args.length > 2) {
             password = args[0];
             min = Integer.parseInt(args[1]);
             max = Integer.parseInt(args[2]);
@@ -85,7 +83,6 @@ public class PasswordCheckerService {
         }
         return true;
     }
-
 
 
     /**
@@ -107,7 +104,7 @@ public class PasswordCheckerService {
      * @param args An array of {@code String} objects containing the password, the limit for consecutive numeric characters, and an optional boolean to check for decreasing sequences.
      * @return {@code true} if the password's sequence of consecutive numeric characters does not exceed the specified limit, {@code false} otherwise.
      * @throws IllegalArgumentException If fewer than two input arguments are provided or if there's an internal error in argument parsing.
-     * @throws NumberFormatException If the limit argument is not a valid integer.
+     * @throws NumberFormatException    If the limit argument is not a valid integer.
      */
     public boolean checkConsecutiveNumbers(String[] args) {
         String password;
@@ -120,7 +117,7 @@ public class PasswordCheckerService {
             password = args[0];
             limit = Integer.parseInt(args[1]);
             isReverse = false; // Assuming default should be false for simplicity
-        } else if (args.length == 3){
+        } else if (args.length == 3) {
             password = args[0];
             limit = Integer.parseInt(args[1]);
             isReverse = Boolean.parseBoolean(args[2]);
@@ -167,7 +164,7 @@ public class PasswordCheckerService {
      * @param args An array of {@code String} objects containing the password, the consecutive character limit, and an optional argument to enable reverse sequence checks.
      * @return {@code true} if the password does not contain consecutive alphabetical sequences exceeding the specified limit, {@code false} otherwise.
      * @throws IllegalArgumentException If fewer than two arguments are provided or if an incorrect number of arguments is given.
-     * @throws NumberFormatException If the limit is not a valid integer.
+     * @throws NumberFormatException    If the limit is not a valid integer.
      */
     public boolean checkConsecutiveAlphabets(String[] args) {
         String password;
@@ -226,7 +223,7 @@ public class PasswordCheckerService {
      * @param args An array of {@code String} objects containing the password and the limit for consecutive identical digits.
      * @return {@code true} if the password does not contain sequences of the same digit exceeding the specified limit, {@code false} otherwise.
      * @throws IllegalArgumentException If fewer than two arguments are provided or if an incorrect number of arguments is given.
-     * @throws NumberFormatException If the limit is not a valid integer.
+     * @throws NumberFormatException    If the limit is not a valid integer.
      */
     public boolean checkSameNumbers(String[] args) {
         String password;
@@ -279,7 +276,7 @@ public class PasswordCheckerService {
      * @param args An array of {@code String} objects containing the password and the limit for consecutive identical letters.
      * @return {@code true} if the password does not contain sequences of the same letter exceeding the specified limit, {@code false} otherwise.
      * @throws IllegalArgumentException If fewer than two arguments are provided or if an incorrect number of arguments is given.
-     * @throws NumberFormatException If the limit is not a valid integer.
+     * @throws NumberFormatException    If the limit is not a valid integer.
      */
     public boolean checkSameAlphabets(String[] args) {
         String password;
@@ -314,6 +311,63 @@ public class PasswordCheckerService {
         }
 
         return true; // Return true if no sequence of the same letter exceeds the limit
+    }
+
+    /**
+     * Determines if a password contains sequences of the same symbol longer than a specified limit.
+     * <p>
+     * This method checks the given password for sequences of identical non-alphanumeric characters (symbols). If any such sequence exceeds the length specified by the 'limit' parameter, the method returns {@code false}. This check ignores letters and digits, focusing solely on symbols.
+     * </p>
+     * <p>
+     * The method expects two arguments:
+     * <ul>
+     * <li>The password to be checked.</li>
+     * <li>A string representation of the limit for consecutive identical symbols.</li>
+     * </ul>
+     * By providing these arguments, it's possible to define the maximum length of a sequence of identical symbols that is deemed acceptable within the password.
+     * </p>
+     *
+     * @param args An array of {@code String} objects containing the password and the limit for consecutive identical symbols.
+     * @return {@code true} if the password does not contain sequences of the same symbol exceeding the specified limit, {@code false} otherwise.
+     * @throws IllegalArgumentException If fewer than two arguments are provided or if an incorrect number of arguments is given.
+     * @throws NumberFormatException    If the limit is not a valid integer.
+     */
+    public boolean checkSameSymbols(String[] args) {
+        String password;
+        int limit;
+
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and limit.");
+        } else if (args.length == 2) {
+            password = args[0]; // No need to normalize case for symbols
+            limit = Integer.parseInt(args[1]);
+        } else {
+            throw new IllegalArgumentException("Too many arguments provided.");
+        }
+
+        // Check for sequences of the same symbol exceeding the limit
+        int count = 1; // Start with a count of 1 to account for the current character
+        for (int i = 0; i < password.length() - 1; i++) {
+            char currentChar = password.charAt(i);
+            char nextChar = password.charAt(i + 1);
+
+            // Check if the current character is not a letter or digit (thus, a symbol)
+            if (!Character.isLetterOrDigit(currentChar)) {
+                if (currentChar == nextChar) {
+                    // If the current symbol is the same as the next, increment the count
+                    count++;
+                    if (count > limit) {
+                        // If the count exceeds the limit, return false
+                        return false;
+                    }
+                } else {
+                    // Reset the count if the current symbol is not the same as the next
+                    count = 1;
+                }
+            }
+        }
+
+        return true; // Return true if no sequence of the same symbol exceeds the limit
     }
 
 
