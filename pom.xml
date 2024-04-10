@@ -13,5 +13,12 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <dependencies>
+    <dependency>
+        <groupId>org.jline</groupId>
+        <artifactId>jline</artifactId>
+        <version>3.25.1</version> <!-- Make sure to use the latest version -->
+    </dependency>
+    </dependencies>
 
 </project>
