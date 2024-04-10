@@ -130,9 +130,9 @@ public class PasswordCheckerDto {
     public boolean reverseChecker;
 
     /**
-     * Defines the password policy to be applied during validation.
+     * Defines the regex policy to be applied during validation.
      */
-    public int passwordPolicy;
+    public int regexPolicy;
 
     /**
      * List of strings that the password should not match or contain.
@@ -279,14 +279,6 @@ public class PasswordCheckerDto {
         this.reverseChecker = reverseChecker;
     }
 
-    public int getPasswordPolicy() {
-        return passwordPolicy;
-    }
-
-    public void setPasswordPolicy(int passwordPolicy) {
-        this.passwordPolicy = passwordPolicy;
-    }
-
     public List<String> getAvoidStringList() {
         return avoidStringList;
     }
@@ -311,6 +303,13 @@ public class PasswordCheckerDto {
         this.maxLength = maxLength;
     }
 
+    public int getRegexPolicy() {
+        return regexPolicy;
+    }
+
+    public void setRegexPolicy(int regexPolicy) {
+        this.regexPolicy = regexPolicy;
+    }
     /**
      * Constructs a PasswordCheckerDto with a specified type, initializing validation criteria based on type.
      * @param type The type of password policy to apply. Currently, this parameter is not utilized in the constructor.
@@ -329,7 +328,7 @@ public class PasswordCheckerDto {
         this.sameSymbolChecker = sameSymbolChecker;
         this.linearAlphabetChecker = linearAlphabetChecker;
         this.reverseChecker = reverseChecker;
-        this.passwordPolicy = passwordPolicy;
+        this.regexPolicy = regexPolicy;
         this.avoidStringList = avoidStringList;
     }
 }

@@ -610,6 +610,67 @@ public class PasswordCheckerService {
     }
 
 
+    public boolean checkRegexPolicy(String[] args) {
+        String password;
+        int regexType;
+        String regex;
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and Regex.");
+        } else if (args.length == 2) {
+            password = args[0];
+            regexType = Integer.parseInt(args[1]);
+            regex = "";
+        } else if (args.length == 3) {
+            password = args[0];
+            regexType = Integer.parseInt(args[1]);
+            regex = args[2];
+        } else {
+            throw new IllegalArgumentException("Too many arguments provided.");
+        }
+        // some default password regex policies
+        switch (regexType) {
+            case 1:
+                // 1. At least one digit or letter
+                // 2. No whitespace allowed in the entire string
+                // 3. Minimum length of 6 characters
+                regex = "^(?=.*[0-9a-zA-Z])(?=\\S+$).{8,}$";
+                break;
+            case 2:
+                // 1. At least one digit
+                // 2. At least one letter
+                // 3. No whitespace allowed in the entire string
+                // 4. Minimum length of 8 characters
+                regex = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=\\S+$).{8,}$";
+                break;
+            case 3:
+                // 1. At least one digit
+                // 2. At least one lowercase letter
+                // 3. At least one uppercase letter
+                // 4. No whitespace allowed in the entire string
+                // 5. Minimum length of 8 characters
+                regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$";
+                break;
+            case 4:
+                // 1. At least one digit
+                // 2. At least one lowercase letter
+                // 3. At least one uppercase letter
+                // 4. At least one special character
+                // 5. No whitespace allowed in the entire string
+                // 6. Minimum length of 8 characters
+                regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\\W)(?=\\S+$).{8,}$";
+                break;
+            default:
+                if (StringTools.usable(regex)) {
+                    // TODO: check if Regex is valid
+                    break;
+                } else {
+                    throw new IllegalArgumentException("Unsupported regex type: " + regexType);
+                }
+        }
+        boolean result = password.matches(regex);
+        return result;
+    }
+
 
 
     /**
