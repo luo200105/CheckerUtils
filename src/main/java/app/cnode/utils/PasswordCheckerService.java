@@ -370,6 +370,118 @@ public class PasswordCheckerService {
         return true; // Return true if no sequence of the same symbol exceeds the limit
     }
 
+    /**
+     * Validates whether a password contains linear sequences of characters, either forward or reverse, based on a specified keyboard layout, exceeding a given limit.
+     * <p>
+     * The method examines the password for linear sequences of alphabetical characters following the order of keys on a keyboard layout, such as "asdf" on a QWERTY layout. It checks for both forward (e.g., "abc") and, if specified, reverse (e.g., "cba") sequences against a limit. If any sequence exceeds this limit, the method returns {@code false}. The keyboard layout can be specified, with "QWERTY" being the default.
+     * </p>
+     * <p>
+     * Expected arguments are:
+     * <ul>
+     * <li>The password to check, converted to lowercase for case-insensitive comparison.</li>
+     * <li>A string representation of the limit for consecutive characters in a sequence.</li>
+     * <li>An optional boolean indicating whether to check for reverse sequences (defaults to {@code false} if not provided).</li>
+     * <li>An optional keyboard layout (e.g., "QWERTY", "AZERTY"). If not provided, "QWERTY" is the default layout.</li>
+     * </ul>
+     * Supported layouts include QWERTY, AZERTY, QWERTZ, DVORAK, and COLEMAK. An exception is thrown for unsupported layouts.
+     * </p>
+     *
+     * @param args An array of {@code String} objects containing the password, the consecutive character limit, an optional boolean for reverse sequence checks, and an optional keyboard layout.
+     * @return {@code true} if the password does not contain sequences exceeding the specified limit based on the chosen layout and direction(s), {@code false} otherwise.
+     * @throws IllegalArgumentException If the number of arguments is incorrect, if the limit is not a valid integer, or if an unsupported keyboard layout is specified.
+     */
+    public boolean checkLinearAlphabet(String[] args) {
+        String password;
+        int limit;
+        boolean isReverse;
+        String layout;
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and Limit.");
+        } else if (args.length == 2) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = false;
+            layout = "QWERTY";
+        } else if (args.length == 3) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+            layout = "QWERTY";
+        } else if (args.length == 4) {
+            password = args[0].toLowerCase();
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+            layout = args[3].toUpperCase();
+        } else {
+            throw new IllegalArgumentException("Too many arguments provided.");
+        }
+
+        // Define keyboard rows for various layouts
+        String[][] layouts = {
+                {"qwertyuiop", "asdfghjkl", "zxcvbnm"},   // QWERTY layout
+                {"azertyuiop", "qsdfghjklm", "wxcvbn"},   // AZERTY layout
+                {"qwertzuiop", "asdfghjkl", "yxcvbnm"},   // QWERTZ layout
+                {"pyfgcrl", "aoeuidhtns", "qjkxbmwvz"},   // DVORAK layout
+                {"qwfpgjluy", "arstdhneio", "zxcvbkm"}    // COLEMAK layout
+        };
+
+        String[] keyboardRows;
+        switch (layout) {
+            case "QWERTY":
+                keyboardRows = layouts[0];
+                break;
+            case "AZERTY":
+                keyboardRows = layouts[1];
+                break;
+            case "QWERTZ":
+                keyboardRows = layouts[2];
+                break;
+            case "DVORAK":
+                keyboardRows = layouts[3];
+                break;
+            case "COLEMAK":
+                keyboardRows = layouts[4];
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported keyboard layout: " + layout);
+        }
+
+        // Check for sequences in the specified layout's rows
+        for (String row : keyboardRows) {
+            int forwardSequenceLength = 0;
+            int reverseSequenceLength = 0;
+            for (int i = 0; i < password.length() - 1; i++) {
+                int currentIndex = row.indexOf(password.charAt(i));
+                int nextIndex = row.indexOf(password.charAt(i + 1));
+
+                // Check for forward sequence
+                if (currentIndex != -1 && nextIndex == currentIndex + 1) {
+                    forwardSequenceLength++;
+                } else {
+                    forwardSequenceLength = 0; // Reset if no forward sequence
+                }
+
+                if (isReverse) {
+                    // Check for reverse sequence
+                    if (currentIndex != -1 && nextIndex == currentIndex - 1) {
+                        reverseSequenceLength++;
+                    } else {
+                        reverseSequenceLength = 0; // Reset if no reverse sequence
+                    }
+                }
+
+                // Check if any sequence exceeds the limit
+                if (forwardSequenceLength >= limit || reverseSequenceLength >= limit) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+
 
     /**
      * Checks if the provided password is found in the KALI password database.
