@@ -88,8 +88,48 @@ public class PasswordCheckerService {
 
 
 
-    public boolean continueNumber(String password, int limit) {
-        // Check for continuous numbers
+    /**
+     * Validates if a password contains sequences of consecutive numeric characters, in either increasing or decreasing order, exceeding a specified limit.
+     * <p>
+     * The method requires at least two input arguments:
+     * <ul>
+     * <li>The password to be checked.</li>
+     * <li>A string representation of the limit for consecutive numeric characters allowed.</li>
+     * </ul>
+     * An optional third argument can be provided to enable or disable checking for decreasing sequences of numbers:
+     * <ul>
+     * <li>If the third argument is {@code true} (or if no third argument is provided), the method checks for consecutive numbers in both increasing and decreasing order.</li>
+     * <li>If the third argument is {@code false}, the method checks only for increasing sequences of numbers.</li>
+     * </ul>
+     * If the password contains a sequence of consecutive numeric characters (in the specified direction(s)) longer than the allowed limit, the method returns {@code false}. Otherwise, it returns {@code true}.
+     * </p>
+     *
+     * @param args An array of {@code String} objects containing the password, the limit for consecutive numeric characters, and an optional boolean to check for decreasing sequences.
+     * @return {@code true} if the password's sequence of consecutive numeric characters does not exceed the specified limit, {@code false} otherwise.
+     * @throws IllegalArgumentException If fewer than two input arguments are provided or if there's an internal error in argument parsing.
+     * @throws NumberFormatException If the limit argument is not a valid integer.
+     */
+    public boolean checkConsecutiveNumbers(String[] args) {
+        String password;
+        int limit;
+        boolean isReverse;
+        if (args.length < 2) {
+            throw new IllegalArgumentException("At least two arguments are required: Password and limit. The third argumrnt isReverse is Optional.");
+        }
+        else if (args.length == 2) {
+            password = args[0];
+            limit = Integer.parseInt(args[1]);
+            isReverse = true;
+        }
+        else if (args.length > 2) {
+            password = args[0];
+            limit = Integer.parseInt(args[1]);
+            isReverse = Boolean.parseBoolean(args[2]);
+        } else {
+            throw new IllegalArgumentException("Internal error occurred. Please try again.");
+        }
+
+        // Check for continuous numbers within the limit
         int count = 1;
         for (int i = 0; i < password.length() - 1; i++) {
             if (password.charAt(i) + 1 == password.charAt(i + 1)) {
@@ -98,12 +138,24 @@ public class PasswordCheckerService {
                     return false;
                 }
             } else {
-                count = 1;
+                count = 1; // Reset count if current and next characters are not consecutive
             }
         }
-        return true;
+        if (isReverse) {
+            count = 1;
+            for (int i = 0; i < password.length() - 1; i++) {
+                if (password.charAt(i) - 1 == password.charAt(i + 1)) {
+                    count++;
+                    if (count > limit) {
+                        return false;
+                    }
+                } else {
+                    count = 1; // Reset count if current and next characters are not consecutive
+                }
+            }
+        }
+        return true; // Return true if the password does not exceed the limit of consecutive numbers
     }
-
 
     /**
      * Checks if the provided password is found in the KALI password database.
