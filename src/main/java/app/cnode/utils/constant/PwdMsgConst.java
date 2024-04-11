@@ -13,7 +13,8 @@ public enum PwdMsgConst {
     LINEAR_FAIL("Password contains linear characters Over Designated Limit"),
     UNACCEPTABLE_FAIL("Password contains unacceptable characters"),
     LENGTH_FAIL("Password length is not within the designated range"),
-    SYSTEM_ERROR("System Error")
+    SYSTEM_ERROR("System Error"),
+    AVOID_STR_FAIL("Password contains avoid strings")
 
 
     ;

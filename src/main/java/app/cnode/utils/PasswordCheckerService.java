@@ -9,19 +9,25 @@ import java.util.List;
 public class PasswordCheckerService {
 
     /**
-     * Checks the validity of a password based on various criteria encapsulated within the {@link PasswordCheckerDto} object.
-     * The method first checks if the password is null or empty using a utility method from {@code StringTools}. If the password
-     * is found to be unusable (either null or empty), the result, message, and failed reason fields of the DTO are updated
-     * accordingly, and the DTO is returned.
+     * Validates the provided password against a comprehensive set of security policies.
      * <p>
-     * If the password passes the initial null or empty check, the method then checks the password length if the length check
-     * is enabled in the DTO. If the password fails the length check, the result, message, and failed reason fields are updated
-     * to indicate the failure reason, and the DTO is returned.
+     * This method performs multiple checks on the password, including but not limited to:
+     * <ul>
+     *     <li>Length validation against specified minimum and maximum lengths.</li>
+     *     <li>Checks for consecutive numeric and alphabetical sequences, including reverse sequences if specified.</li>
+     *     <li>Validation against sequences of the same character (number, alphabet, or symbol).</li>
+     *     <li>Evaluation for linear sequences based on a specified keyboard layout.</li>
+     *     <li>Assessment against a custom or predefined regex pattern.</li>
+     *     <li>Verification that the password does not contain any strings from a specified list to avoid.</li>
+     * </ul>
+     * The result of each check updates the {@code PasswordCheckerDto} with a success or failure status, an appropriate message, and, if failed, the reason for the failure.
+     * </p>
      * <p>
-     * If the password passes all checks, the result is set to true, and the message is updated to indicate success.
+     * If the password passes all checks, the method sets the result in the DTO to {@code true} and assigns a success message. Otherwise, the password is considered invalid, the result is set to {@code false}, and the DTO is updated with details of the first failed check.
+     * </p>
      *
-     * @param dto The {@link PasswordCheckerDto} object containing the password to check and the criteria for validation.
-     * @return The {@link PasswordCheckerDto} object with the result, message, and failed reason fields updated based on the outcome of the checks.
+     * @param dto A {@code PasswordCheckerDto} object containing the password to check and the parameters for the various validation policies.
+     * @return The updated {@code PasswordCheckerDto} object with the result of the password validation, including a message indicating the outcome and, if applicable, the reason for failure.
      */
     public PasswordCheckerDto checkPassword(PasswordCheckerDto dto) {
 
@@ -33,6 +39,7 @@ public class PasswordCheckerService {
             return dto;
         }
 
+        // Check if the password length is within the specified bounds
         if (dto.getLengthChecker()) {
             String[] args = {dto.getPassword(), String.valueOf(dto.getMinLength()), String.valueOf(dto.getMaxLength())};
             if (checkLength(args)) {
@@ -41,6 +48,100 @@ public class PasswordCheckerService {
                 dto.setFailedReason(PwdFailReasonConst.LENGTH_FAIL.getMsg());
                 return dto;
             }
+        }
+
+        // Check if the password contains consecutive numbers
+        if (dto.getContinueNumberChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength()), String.valueOf(dto.getReverseChecker())};
+            if (!checkConsecutiveNumbers(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.REPEAT_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.REPEAT_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains consecutive alphabets
+        if (dto.getContinueAlphabetChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength()), String.valueOf(dto.getReverseChecker())};
+            if (!checkConsecutiveAlphabets(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.REPEAT_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.REPEAT_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains same numbers
+        if (dto.getSameNumberChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength())};
+            if (!checkSameNumbers(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.REPEAT_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.REPEAT_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains same alphabets
+        if (dto.getSameAlphabetChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength())};
+            if (!checkSameAlphabets(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.REPEAT_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.REPEAT_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains same symbols
+        if (dto.getSameSymbolChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength())};
+            if (!checkSameSymbols(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.REPEAT_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.REPEAT_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains linear alphabets
+        if (dto.getLinearAlphabetChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength()), String.valueOf(dto.getReverseChecker()), dto.getKeyboardLayout()};
+            if (!checkLinearAlphabet(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.LINEAR_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.LINEAR_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password contains linear symbols
+        if (dto.getContinueSymbolChecker()) {
+            String[] args = {dto.getPassword(), String.valueOf(dto.getContinueLength()), String.valueOf(dto.getReverseChecker()), dto.getKeyboardLayout()};
+            if (!checkContinueSymbol(args)) {
+                dto.setResult(false);
+                dto.setMessage(PwdMsgConst.LINEAR_FAIL.getMsg());
+                dto.setFailedReason(PwdFailReasonConst.LINEAR_FAIL.getMsg());
+                return dto;
+            }
+        }
+
+        // Check if the password pass Regex
+        String[] argsRegex = {dto.getPassword(), String.valueOf(dto.getRegexPolicy()), dto.getRegex()};
+        if (!checkRegexPolicy(argsRegex)) {
+            dto.setResult(false);
+            dto.setMessage(PwdMsgConst.REGEX_FAIL.getMsg());
+            dto.setFailedReason(PwdFailReasonConst.REGEX_FAIL.getMsg());
+            return dto;
+        }
+
+        // Check if the password contains avoid Strings
+        if (!checkAvoidString(dto.getPassword(), dto.getAvoidStringList())) {
+            dto.setResult(false);
+            dto.setMessage(PwdMsgConst.AVOID_STR_FAIL.getMsg());
+            dto.setFailedReason(PwdFailReasonConst.AVOID_STR_FAIL.getMsg());
+            return dto;
         }
 
         dto.setResult(true);
@@ -609,7 +710,26 @@ public class PasswordCheckerService {
         return true;
     }
 
-
+    /**
+     * Validates a password against specific regex-based policies or a custom regex pattern.
+     * <p>
+     * This method checks if the provided password adheres to one of several predefined regex policies or a custom regex pattern specified in the arguments. The method supports various levels of password complexity, from basic digit or letter requirements to more stringent policies that include a mix of uppercase, lowercase, digits, and special characters without any whitespace.
+     * </p>
+     * <p>
+     * Predefined regex policies are:
+     * <ul>
+     * <li>Type 1: Minimum of 8 characters with at least one digit or letter, no whitespace.</li>
+     * <li>Type 2: Minimum of 8 characters, at least one digit, at least one letter, no whitespace.</li>
+     * <li>Type 3: Minimum of 8 characters, at least one digit, one lowercase letter, one uppercase letter, no whitespace.</li>
+     * <li>Type 4: Minimum of 8 characters, at least one digit, one lowercase letter, one uppercase letter, one special character, no whitespace.</li>
+     * </ul>
+     * If a custom regex is provided (as the third argument), it overrides the predefined policies.
+     * </p>
+     *
+     * @param args An array of {@code String} where the first element is the password to check, the second is the regex policy type (1-4), and the optional third is a custom regex pattern.
+     * @return {@code true} if the password matches the specified regex pattern; {@code false} otherwise.
+     * @throws IllegalArgumentException If the number of arguments is incorrect or if an unsupported regex type is provided without a valid custom regex.
+     */
     public boolean checkRegexPolicy(String[] args) {
         String password;
         int regexType;
@@ -681,9 +801,11 @@ public class PasswordCheckerService {
      * @return {@code true} if the password is not found in the KALI database; {@code false} otherwise.
      */
     public boolean checkRedis(String password) {
+        // RedisService As one Arg
 //        boolean hasKey = redisServices.hasKey(password);
         if (false) {
-            //与KALI密码库重合
+            // Check if the password is found in the KALI database
+            // TODO: Implement the actual check against the KALI database
             return false;
         }
         return true;

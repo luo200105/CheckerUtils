@@ -1,6 +1,6 @@
 package app.cnode.utils.dto;
 
-import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.core.RedisTemplate;
 
 import java.security.Key;
 import java.util.List;
@@ -150,9 +150,19 @@ public class PasswordCheckerDto {
     public int ranking;
 
     /**
+     * Layout of the Keyboard
+     */
+    public String keyboardLayout;
+
+    /**
+     * Customized Regex
+     */
+    public String regex;
+
+    /**
      * Redis Connection
      */
-    public RedisTemplate<String, String> redisTemplate;
+//    public RedisTemplate redisTemplate;
 
     /**
      * Default constructor for PasswordCheckerDto class.
@@ -321,17 +331,50 @@ public class PasswordCheckerDto {
         this.regexPolicy = regexPolicy;
     }
 
-    public RedisTemplate<String, String> getRedisTemplate() {
-        return redisTemplate;
+    public String getKeyboardLayout() {
+        return keyboardLayout;
     }
 
-    public void setRedisTemplate(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public void setKeyboardLayout(String keyboardLayout) {
+        this.keyboardLayout = keyboardLayout;
     }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
+
+//    public RedisTemplate<String, String> getRedisTemplate() {
+//        return redisTemplate;
+//    }
+//
+//    public void setRedisTemplate(RedisTemplate<String, String> redisTemplate) {
+//        this.redisTemplate = redisTemplate;
+//    }
 
     /**
-     * Constructs a PasswordCheckerDto with a specified type, initializing validation criteria based on type.
-     * @param type The type of password policy to apply. Currently, this parameter is not utilized in the constructor.
+     * Initializes a new instance of the PasswordCheckerDto class with a specified password policy configuration.
+     * <p>
+     * Based on the 'type' parameter, this constructor configures the password policy with predefined settings, including minimum length requirements, the inclusion of various checks (e.g., sequential numbers, identical characters, linear alphabet sequences), and a list of strings to avoid. These settings are tailored for different levels of password security requirements.
+     * </p>
+     * <p>
+     * Types and their configurations:
+     * <ul>
+     * <li>Type 1: High security - All checks enabled, minimum length of 12, QWERTY layout, reverse checks, and a comprehensive avoid list.</li>
+     * <li>Type 2-5: Medium to lower security - Gradually reduces checks and minimum length requirements.</li>
+     * <li>Type 6: Minimal security - Only length check enabled with a minimum of 6 characters.</li>
+     * <li>Type 65535: Custom or debug setting - Similar to Type 1, serves as an override or specific configuration setup.</li>
+     * </ul>
+     * If an undefined type is provided, no configuration is applied.
+     * </p>
+     * <p>
+     * The constructor also defines a default list of strings to avoid in passwords, common across most types, including terms like 'password', 'admin', and various others, often associated with weak passwords.
+     * </p>
+     *
+     * @param type The type of password policy configuration to apply, determining the security measures and checks to be enabled for password validation.
      */
     public PasswordCheckerDto(int type) {
         List<String> defaultAvoidStringList = new Vector<>();
@@ -380,8 +423,9 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = true;
                 this.linearAlphabetChecker = true;
                 this.reverseChecker = true;
-                this.regexPolicy = 1;
+                this.regexPolicy = 4;
                 this.avoidStringList = defaultAvoidStringList;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 2:
                 this.lengthChecker = true;
@@ -396,8 +440,9 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = true;
                 this.linearAlphabetChecker = true;
                 this.reverseChecker = false;
-                this.regexPolicy = 1;
+                this.regexPolicy = 4;
                 this.avoidStringList = defaultAvoidStringList;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 3:
                 this.lengthChecker = true;
@@ -412,8 +457,9 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = false;
                 this.linearAlphabetChecker = true;
                 this.reverseChecker = false;
-                this.regexPolicy = 0;
+                this.regexPolicy = 3;
                 this.avoidStringList = defaultAvoidStringList;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 4:
                 this.lengthChecker = true;
@@ -428,8 +474,9 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = false;
                 this.linearAlphabetChecker = true;
                 this.reverseChecker = false;
-                this.regexPolicy = 0;
+                this.regexPolicy = 2;
                 this.avoidStringList = defaultAvoidStringList;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 5:
                 this.lengthChecker = true;
@@ -444,7 +491,8 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = false;
                 this.linearAlphabetChecker = false;
                 this.reverseChecker = false;
-                this.regexPolicy = 0;
+                this.regexPolicy = 1;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 6:
                 this.lengthChecker = true;
@@ -459,7 +507,8 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = false;
                 this.linearAlphabetChecker = false;
                 this.reverseChecker = false;
-                this.regexPolicy = 0;
+                this.regexPolicy = 1;
+                this.keyboardLayout = "QWERTY";
                 break;
             case 65535:
                 this.lengthChecker = true;
@@ -474,13 +523,47 @@ public class PasswordCheckerDto {
                 this.sameSymbolChecker = true;
                 this.linearAlphabetChecker = true;
                 this.reverseChecker = true;
-                this.regexPolicy = 1;
+                this.regexPolicy = 4;
                 this.avoidStringList = defaultAvoidStringList;
+                this.keyboardLayout = "QWERTY";
                 break;
             default:
         }
     }
 
+    /**
+     * Initializes a new instance of the PasswordCheckerDto class with configuration parameters specified in a map.
+     * <p>
+     * This constructor allows for a highly customizable setup of the password policy by passing a map containing specific configuration keys and values. The map allows setting boolean flags for various checks (e.g., length check, sequence checks), defining minimum and maximum password lengths, specifying the length for sequential character checks, enabling or disabling checks for numbers, alphabets, and symbols, and much more.
+     * </p>
+     * <p>
+     * Configuration parameters include:
+     * <ul>
+     * <li>{@code lengthChecker}: Enables or disables length check.</li>
+     * <li>{@code minLength}: Specifies the minimum password length.</li>
+     * <li>{@code maxLength}: Specifies the maximum password length.</li>
+     * <li>{@code redisChecker}: Enables or disables Redis check (if applicable).</li>
+     * <li>{@code continueLength}: Length threshold for continuous character checks.</li>
+     * <li>{@code continueNumberChecker}: Enables or disables continuous number sequence check.</li>
+     * <li>{@code continueAlphabetChecker}: Enables or disables continuous alphabet sequence check.</li>
+     * <li>{@code continueSymbolChecker}: Enables or disables continuous symbol sequence check.</li>
+     * <li>{@code sameNumberChecker}: Enables or disables check for repeated numbers.</li>
+     * <li>{@code sameAlphabetChecker}: Enables or disables check for repeated alphabets.</li>
+     * <li>{@code sameSymbolChecker}: Enables or disables check for repeated symbols.</li>
+     * <li>{@code linearAlphabetChecker}: Enables or disables check for linear alphabetic sequences based on a keyboard layout.</li>
+     * <li>{@code reverseChecker}: Enables or disables checks for reverse sequences.</li>
+     * <li>{@code regexPolicy}: Specifies the regex policy level.</li>
+     * <li>{@code avoidStringList}: A list of strings to be avoided in the password.</li>
+     * <li>{@code keyboardLayout}: Specifies the keyboard layout for linear sequence checks.</li>
+     * <li>{@code regex}: Custom regex pattern for additional password validation.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * This approach offers flexibility in configuring password validation rules to match specific security requirements.
+     * </p>
+     *
+     * @param map A {@code Map<String, Object>} where each key represents a configuration parameter and the value its setting.
+     */
     public PasswordCheckerDto(Map<String,Object> map){
         this.lengthChecker = (boolean) map.get("lengthChecker");
         this.minLength = (int) map.get("minLength");
@@ -497,6 +580,8 @@ public class PasswordCheckerDto {
         this.reverseChecker = (boolean) map.get("reverseChecker");
         this.regexPolicy = (int) map.get("regexPolicy");
         this.avoidStringList = (List<String>) map.get("avoidStringList");
+        this.keyboardLayout = (String) map.get("keyboardLayout");
+        this.regex = (String) map.get("regex");
     }
 }
 
