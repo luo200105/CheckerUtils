@@ -1,6 +1,11 @@
 package app.cnode.utils.dto;
 
+import org.springframework.data.redis.core.RedisTemplate;
+
+import java.security.Key;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * The {@code PasswordCheckerDto} class encapsulates the result of a password check, including various details such as the outcome,
@@ -143,6 +148,11 @@ public class PasswordCheckerDto {
      * Ranking of the password.
      */
     public int ranking;
+
+    /**
+     * Redis Connection
+     */
+    public RedisTemplate<String, String> redisTemplate;
 
     /**
      * Default constructor for PasswordCheckerDto class.
@@ -310,26 +320,183 @@ public class PasswordCheckerDto {
     public void setRegexPolicy(int regexPolicy) {
         this.regexPolicy = regexPolicy;
     }
+
+    public RedisTemplate<String, String> getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    public void setRedisTemplate(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     /**
      * Constructs a PasswordCheckerDto with a specified type, initializing validation criteria based on type.
      * @param type The type of password policy to apply. Currently, this parameter is not utilized in the constructor.
      */
     public PasswordCheckerDto(int type) {
-        this.lengthChecker = lengthChecker;
-        this.minLength = minLength;
-        this.maxLength = maxLength;
-        this.redisChecker = redisChecker;
-        this.continueLength = continueLength;
-        this.continueNumberChecker = continueNumberChecker;
-        this.continueAlphabetChecker = continueAlphabetChecker;
-        this.continueSymbolChecker = continueSymbolChecker;
-        this.sameNumberChecker = sameNumberChecker;
-        this.sameAlphabetChecker = sameAlphabetChecker;
-        this.sameSymbolChecker = sameSymbolChecker;
-        this.linearAlphabetChecker = linearAlphabetChecker;
-        this.reverseChecker = reverseChecker;
-        this.regexPolicy = regexPolicy;
-        this.avoidStringList = avoidStringList;
+        List<String> defaultAvoidStringList = new Vector<>();
+        defaultAvoidStringList.add("password");
+        defaultAvoidStringList.add("pwd");
+        defaultAvoidStringList.add("admin");
+        defaultAvoidStringList.add("root");
+        defaultAvoidStringList.add("user");
+        defaultAvoidStringList.add("linux");
+        defaultAvoidStringList.add("unix");
+        defaultAvoidStringList.add("ubuntu");
+        defaultAvoidStringList.add("debian");
+        defaultAvoidStringList.add("centos");
+        defaultAvoidStringList.add("redhat");
+        defaultAvoidStringList.add("fedora");
+        defaultAvoidStringList.add("prod");
+        defaultAvoidStringList.add("test");
+        defaultAvoidStringList.add("dev");
+        defaultAvoidStringList.add("login");
+        defaultAvoidStringList.add("logout");
+        defaultAvoidStringList.add("signin");
+        defaultAvoidStringList.add("signout");
+        defaultAvoidStringList.add("signup");
+        defaultAvoidStringList.add("signoff");
+        defaultAvoidStringList.add("register");
+        defaultAvoidStringList.add("unregister");
+        defaultAvoidStringList.add("azure");
+        defaultAvoidStringList.add("aws");
+        defaultAvoidStringList.add("google");
+        defaultAvoidStringList.add("Aliyun");
+        defaultAvoidStringList.add("tencent");
+        defaultAvoidStringList.add("baidu");
+        defaultAvoidStringList.add("passw0rd");
+        defaultAvoidStringList.add("master");
+        switch (type){
+            case 1:
+                this.lengthChecker = true;
+                this.minLength = 12;
+                this.redisChecker = true;
+                this.continueLength = 3;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = true;
+                this.continueSymbolChecker = true;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = true;
+                this.sameSymbolChecker = true;
+                this.linearAlphabetChecker = true;
+                this.reverseChecker = true;
+                this.regexPolicy = 1;
+                this.avoidStringList = defaultAvoidStringList;
+                break;
+            case 2:
+                this.lengthChecker = true;
+                this.minLength = 10;
+                this.redisChecker = true;
+                this.continueLength = 3;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = true;
+                this.continueSymbolChecker = false;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = true;
+                this.sameSymbolChecker = true;
+                this.linearAlphabetChecker = true;
+                this.reverseChecker = false;
+                this.regexPolicy = 1;
+                this.avoidStringList = defaultAvoidStringList;
+                break;
+            case 3:
+                this.lengthChecker = true;
+                this.minLength = 8;
+                this.redisChecker = true;
+                this.continueLength = 4;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = true;
+                this.continueSymbolChecker = false;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = true;
+                this.sameSymbolChecker = false;
+                this.linearAlphabetChecker = true;
+                this.reverseChecker = false;
+                this.regexPolicy = 0;
+                this.avoidStringList = defaultAvoidStringList;
+                break;
+            case 4:
+                this.lengthChecker = true;
+                this.minLength = 8;
+                this.redisChecker = false;
+                this.continueLength = 5;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = true;
+                this.continueSymbolChecker = false;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = true;
+                this.sameSymbolChecker = false;
+                this.linearAlphabetChecker = true;
+                this.reverseChecker = false;
+                this.regexPolicy = 0;
+                this.avoidStringList = defaultAvoidStringList;
+                break;
+            case 5:
+                this.lengthChecker = true;
+                this.minLength = 6;
+                this.redisChecker = false;
+                this.continueLength = 4;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = false;
+                this.continueSymbolChecker = false;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = false;
+                this.sameSymbolChecker = false;
+                this.linearAlphabetChecker = false;
+                this.reverseChecker = false;
+                this.regexPolicy = 0;
+                break;
+            case 6:
+                this.lengthChecker = true;
+                this.minLength = 6;
+                this.redisChecker = false;
+                this.continueLength = 4;
+                this.continueNumberChecker = false;
+                this.continueAlphabetChecker = false;
+                this.continueSymbolChecker = false;
+                this.sameNumberChecker = false;
+                this.sameAlphabetChecker = false;
+                this.sameSymbolChecker = false;
+                this.linearAlphabetChecker = false;
+                this.reverseChecker = false;
+                this.regexPolicy = 0;
+                break;
+            case 65535:
+                this.lengthChecker = true;
+                this.minLength = 12;
+                this.redisChecker = true;
+                this.continueLength = 3;
+                this.continueNumberChecker = true;
+                this.continueAlphabetChecker = true;
+                this.continueSymbolChecker = true;
+                this.sameNumberChecker = true;
+                this.sameAlphabetChecker = true;
+                this.sameSymbolChecker = true;
+                this.linearAlphabetChecker = true;
+                this.reverseChecker = true;
+                this.regexPolicy = 1;
+                this.avoidStringList = defaultAvoidStringList;
+                break;
+            default:
+        }
+    }
+
+    public PasswordCheckerDto(Map<String,Object> map){
+        this.lengthChecker = (boolean) map.get("lengthChecker");
+        this.minLength = (int) map.get("minLength");
+        this.maxLength = (int) map.get("maxLength");
+        this.redisChecker = (boolean) map.get("redisChecker");
+        this.continueLength = (int) map.get("continueLength");
+        this.continueNumberChecker = (boolean) map.get("continueNumberChecker");
+        this.continueAlphabetChecker = (boolean) map.get("continueAlphabetChecker");
+        this.continueSymbolChecker = (boolean) map.get("continueSymbolChecker");
+        this.sameNumberChecker = (boolean) map.get("sameNumberChecker");
+        this.sameAlphabetChecker = (boolean) map.get("sameAlphabetChecker");
+        this.sameSymbolChecker = (boolean) map.get("sameSymbolChecker");
+        this.linearAlphabetChecker = (boolean) map.get("linearAlphabetChecker");
+        this.reverseChecker = (boolean) map.get("reverseChecker");
+        this.regexPolicy = (int) map.get("regexPolicy");
+        this.avoidStringList = (List<String>) map.get("avoidStringList");
     }
 }
 
